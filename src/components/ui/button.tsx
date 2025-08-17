@@ -9,7 +9,10 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        default: "bg-primary text-primary-foreground hover:bg-primary/90 transition-sacred",
+        sacred: "bg-sunrise-gradient text-primary-foreground hover:shadow-sacred hover:scale-105 transition-sacred",
+        wisdom: "bg-consciousness-gradient text-accent-foreground hover:shadow-elevated transition-sacred",
+        devotional: "bg-devotion-gradient text-primary-foreground hover:shadow-sacred transition-sacred",
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline:
