@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Navigation } from "@/components/Navigation";
 import { ScriptureCard } from "@/components/ScriptureCard";
+import { ScriptureReader } from "@/components/ScriptureReader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAppContext } from "@/contexts/AppContext";
 import { 
   Search, 
   Filter, 
@@ -93,6 +95,8 @@ const Library = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sortBy, setSortBy] = useState("Popularity");
+  const [selectedScripture, setSelectedScripture] = useState<any>(null);
+  const { userProgress, showToast } = useAppContext();
 
   const filteredScriptures = scriptures
     .filter(scripture => 
@@ -113,6 +117,33 @@ const Library = () => {
           return 0;
       }
     });
+
+  const handleStartReading = (scripture: any) => {
+    setSelectedScripture(scripture);
+    userProgress.updateStreak();
+    showToast({
+      title: "Reading Started",
+      description: `Now reading ${scripture.title}`,
+    });
+  };
+
+  const handleContinueReading = (scripture: any) => {
+    setSelectedScripture(scripture);
+    userProgress.updateStreak();
+    showToast({
+      title: "Continuing Reading",
+      description: `Continuing with ${scripture.title}`,
+    });
+  };
+
+  if (selectedScripture) {
+    return (
+      <ScriptureReader 
+        scripture={selectedScripture} 
+        onBack={() => setSelectedScripture(null)} 
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -213,12 +244,12 @@ const Library = () => {
           <TabsContent value="all" className="mt-6">
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredScriptures.map((scripture) => (
-                <ScriptureCard
-                  key={scripture.id}
-                  {...scripture}
-                  onStart={() => console.log(`Starting ${scripture.title}`)}
-                  onContinue={() => console.log(`Continuing ${scripture.title}`)}
-                />
+                  <ScriptureCard
+                    key={scripture.id}
+                    {...scripture}
+                    onStart={() => handleStartReading(scripture)}
+                    onContinue={() => handleContinueReading(scripture)}
+                  />
               ))}
             </div>
           </TabsContent>
@@ -237,12 +268,12 @@ const Library = () => {
               <CardContent>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {filteredScriptures.slice(0, 3).map((scripture) => (
-                    <ScriptureCard
-                      key={scripture.id}
-                      {...scripture}
-                      onStart={() => console.log(`Starting ${scripture.title}`)}
-                      onContinue={() => console.log(`Continuing ${scripture.title}`)}
-                    />
+                <ScriptureCard
+                  key={scripture.id}
+                  {...scripture}
+                  onStart={() => handleStartReading(scripture)}
+                  onContinue={() => handleContinueReading(scripture)}
+                />
                   ))}
                 </div>
               </CardContent>
@@ -254,12 +285,12 @@ const Library = () => {
               {filteredScriptures
                 .sort((a, b) => b.popularity - a.popularity)
                 .map((scripture) => (
-                  <ScriptureCard
-                    key={scripture.id}
-                    {...scripture}
-                    onStart={() => console.log(`Starting ${scripture.title}`)}
-                    onContinue={() => console.log(`Continuing ${scripture.title}`)}
-                  />
+                    <ScriptureCard
+                      key={scripture.id}
+                      {...scripture}
+                      onStart={() => handleStartReading(scripture)}
+                      onContinue={() => handleContinueReading(scripture)}
+                    />
                 ))}
             </div>
           </TabsContent>
@@ -272,8 +303,8 @@ const Library = () => {
                   <ScriptureCard
                     key={scripture.id}
                     {...scripture}
-                    onStart={() => console.log(`Starting ${scripture.title}`)}
-                    onContinue={() => console.log(`Continuing ${scripture.title}`)}
+                    onStart={() => handleStartReading(scripture)}
+                    onContinue={() => handleContinueReading(scripture)}
                   />
                 ))}
             </div>

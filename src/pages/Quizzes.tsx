@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { Navigation } from "@/components/Navigation";
+import { QuizInterface } from "@/components/QuizInterface";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAppContext } from "@/contexts/AppContext";
 import { 
   Brain, 
   Star, 
@@ -94,84 +96,23 @@ const achievements = [
 const Quizzes = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [isQuizActive, setIsQuizActive] = useState(false);
+  const { userProgress } = useAppContext();
 
   const startQuiz = (categoryId: string) => {
     setSelectedCategory(categoryId);
     setIsQuizActive(true);
   };
 
+  const exitQuiz = () => {
+    setIsQuizActive(false);
+    setSelectedCategory(null);
+  };
+
   if (isQuizActive && selectedCategory) {
     const category = quizCategories.find(c => c.id === selectedCategory);
+    if (!category) return null;
     
-    return (
-      <div className="min-h-screen bg-background">
-        <Navigation />
-        
-        <div className="max-w-4xl mx-auto px-4 py-8">
-          <Card className="mb-6">
-            <CardHeader className="text-center">
-              <CardTitle className="text-2xl font-crimson">
-                {category?.title} Quiz
-              </CardTitle>
-              <CardDescription>
-                Question 1 of {category?.questions}
-              </CardDescription>
-              <Progress value={2} className="w-full mt-4" />
-            </CardHeader>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <div className="flex justify-between items-center">
-                <Badge className={category?.color}>{category?.difficulty} Stars</Badge>
-                <div className="flex items-center gap-2">
-                  <Timer className="h-4 w-4" />
-                  <span className="text-sm font-medium">29s</span>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div>
-                <h3 className="text-lg font-semibold mb-4">
-                  What is the main teaching of the Bhagavad Gītā?
-                </h3>
-                
-                <div className="space-y-3">
-                  {[
-                    "The importance of performing one's duty without attachment to results",
-                    "The supremacy of devotional worship over other spiritual practices", 
-                    "The need to renounce the world completely for spiritual growth",
-                    "The historical accounts of ancient Indian kingdoms"
-                  ].map((option, index) => (
-                    <button
-                      key={index}
-                      className="w-full p-4 text-left border border-border rounded-lg hover:bg-muted transition-colors"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-6 h-6 border border-border rounded-full flex items-center justify-center">
-                          <span className="text-sm font-medium">{String.fromCharCode(65 + index)}</span>
-                        </div>
-                        <span>{option}</span>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex justify-between">
-                <Button variant="outline" onClick={() => setIsQuizActive(false)}>
-                  Exit Quiz
-                </Button>
-                <Button variant="sacred">
-                  Next Question
-                  <ChevronRight className="ml-2 h-4 w-4" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
+    return <QuizInterface category={category} onExit={exitQuiz} />;
   }
 
   return (
@@ -196,7 +137,7 @@ const Quizzes = () => {
               <div className="w-12 h-12 bg-sunrise-gradient rounded-full flex items-center justify-center mx-auto mb-2">
                 <Trophy className="h-6 w-6 text-white" />
               </div>
-              <div className="text-2xl font-bold text-primary">2,847</div>
+              <div className="text-2xl font-bold text-primary">{userProgress.progress.totalScore.toLocaleString()}</div>
               <div className="text-sm text-muted-foreground">Total Points</div>
             </CardContent>
           </Card>
@@ -205,7 +146,9 @@ const Quizzes = () => {
               <div className="w-12 h-12 bg-consciousness-gradient rounded-full flex items-center justify-center mx-auto mb-2">
                 <Brain className="h-6 w-6 text-white" />
               </div>
-              <div className="text-2xl font-bold text-primary">127</div>
+              <div className="text-2xl font-bold text-primary">
+                {Object.values(userProgress.progress.quizScores).flat().length}
+              </div>
               <div className="text-sm text-muted-foreground">Questions Answered</div>
             </CardContent>
           </Card>
@@ -223,7 +166,7 @@ const Quizzes = () => {
               <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center mx-auto mb-2">
                 <TrendingUp className="h-6 w-6 text-white" />
               </div>
-              <div className="text-2xl font-bold text-primary">7</div>
+              <div className="text-2xl font-bold text-primary">{userProgress.progress.learningStreak}</div>
               <div className="text-sm text-muted-foreground">Day Streak</div>
             </CardContent>
           </Card>

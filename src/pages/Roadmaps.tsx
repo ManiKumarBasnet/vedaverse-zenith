@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { useAppContext } from "@/contexts/AppContext";
 import { 
   Map, 
   Clock, 
@@ -113,6 +114,30 @@ const phases = [
 ];
 
 const Roadmaps = () => {
+  const { userProgress, showToast } = useAppContext();
+
+  const startRoadmap = (roadmapId: string) => {
+    userProgress.setRoadmap(roadmapId);
+    showToast({
+      title: "Roadmap Started!",
+      description: `Beginning your journey with ${roadmaps.find(r => r.id === roadmapId)?.title}`,
+    });
+  };
+
+  const continueRoadmap = (roadmapId: string) => {
+    userProgress.setRoadmap(roadmapId);
+    showToast({
+      title: "Continuing Journey",
+      description: `Resuming your ${roadmaps.find(r => r.id === roadmapId)?.title} path`,
+    });
+  };
+
+  // Update roadmap progress from user data
+  const updatedRoadmaps = roadmaps.map(roadmap => ({
+    ...roadmap,
+    progress: userProgress.progress.roadmapProgress[roadmap.id] || roadmap.progress
+  }));
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
@@ -130,7 +155,7 @@ const Roadmaps = () => {
 
         {/* Roadmap Selection */}
         <div className="grid md:grid-cols-2 gap-6 mb-12">
-          {roadmaps.map((roadmap) => (
+          {updatedRoadmaps.map((roadmap) => (
             <Card key={roadmap.id} className="hover-lift transition-sacred">
               <CardHeader>
                 <div className="flex items-start justify-between">
@@ -183,12 +208,12 @@ const Roadmaps = () => {
 
                 <div className="flex gap-2">
                   {roadmap.progress > 0 ? (
-                    <Button variant="sacred" className="flex-1">
+                    <Button variant="sacred" className="flex-1" onClick={() => continueRoadmap(roadmap.id)}>
                       Continue Journey
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   ) : (
-                    <Button variant="sacred" className="flex-1">
+                    <Button variant="sacred" className="flex-1" onClick={() => startRoadmap(roadmap.id)}>
                       Start Roadmap
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>

@@ -4,6 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { useAppContext } from "@/contexts/AppContext";
+import { useNavigate } from "react-router-dom";
 import { 
   BookOpen, 
   Target, 
@@ -82,6 +84,28 @@ const aiInsights = [
 ];
 
 const Dashboard = () => {
+  const { userProgress, showToast } = useAppContext();
+  const navigate = useNavigate();
+
+  const handleQuickAction = (action: string) => {
+    switch (action) {
+      case 'library':
+        navigate('/library');
+        break;
+      case 'quiz':
+        navigate('/quizzes');
+        break;
+      case 'community':
+        navigate('/community');
+        break;
+      default:
+        showToast({
+          title: "Feature Coming Soon",
+          description: "This feature will be available in the next update!",
+        });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
@@ -101,7 +125,7 @@ const Dashboard = () => {
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatsCard
             title="Total Score"
-            value="2,847"
+            value={userProgress.progress.totalScore.toLocaleString()}
             icon={Award}
             description="Points earned from learning"
             trend={{ value: 12, isPositive: true }}
@@ -109,7 +133,7 @@ const Dashboard = () => {
           />
           <StatsCard
             title="Learning Streak"
-            value="26 days"
+            value={`${userProgress.progress.learningStreak} days`}
             icon={Flame}
             description="Consecutive learning days"
             trend={{ value: 8, isPositive: true }}
@@ -117,14 +141,14 @@ const Dashboard = () => {
           />
           <StatsCard
             title="Texts Explored"
-            value="7"
+            value={userProgress.progress.textsExplored.toString()}
             icon={BookOpen}
             description="Scriptures studied"
             variant="devotional"
           />
           <StatsCard
             title="Study Time"
-            value="142h"
+            value={`${Math.floor(userProgress.progress.studyTime / 60)}h`}
             icon={Clock}
             description="Total learning hours"
             trend={{ value: 15, isPositive: true }}
@@ -260,15 +284,15 @@ const Dashboard = () => {
                 <CardTitle>Quick Actions</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <Button variant="outline" className="w-full justify-start">
+                <Button variant="outline" className="w-full justify-start" onClick={() => handleQuickAction('library')}>
                   <BookOpen className="mr-2 h-4 w-4" />
                   Browse Library
                 </Button>
-                <Button variant="outline" className="w-full justify-start">
+                <Button variant="outline" className="w-full justify-start" onClick={() => handleQuickAction('quiz')}>
                   <Brain className="mr-2 h-4 w-4" />
                   Take Quiz
                 </Button>
-                <Button variant="outline" className="w-full justify-start">
+                <Button variant="outline" className="w-full justify-start" onClick={() => handleQuickAction('community')}>
                   <Heart className="mr-2 h-4 w-4" />
                   Join Community
                 </Button>
